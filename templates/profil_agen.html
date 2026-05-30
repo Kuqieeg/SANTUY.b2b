@@ -1,22 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Edit Profil · SANTUY{% endblock %}
+{% block title %}Edit Profil Agen · SANTUY{% endblock %}
 {% block content %}
 <div class="crumb"><a href="{{ url_for('agen_dashboard') }}">← Kembali ke dashboard</a></div>
 <div class="auth-wrap">
   <div class="panel auth-card wide">
-    <h1>Edit Profil</h1>
+    <h1>Edit Profil Agen</h1>
     <form method="post" class="form">
-      <div class="grid2">
-        <label>Nama / toko
-          <input type="text" name="name" required value="{{ agen.name }}">
-        </label>
-        <label>Jenis
-          <select name="jenis">
-            <option value="Distributor" {{ 'selected' if (agen.jenis or 'Distributor')=='Distributor' }}>🚚 Distributor</option>
-            <option value="Agen" {{ 'selected' if agen.jenis=='Agen' }}>🛒 Agen</option>
-          </select>
-        </label>
-      </div>
+      <label>Nama / toko
+        <input type="text" name="name" required value="{{ agen.name }}">
+      </label>
       <label>Deskripsi
         <textarea name="description" rows="2">{{ agen.description or '' }}</textarea>
       </label>

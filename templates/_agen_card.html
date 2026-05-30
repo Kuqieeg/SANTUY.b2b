@@ -1,8 +1,7 @@
 {% set a = it.a %}
 <div class="panel agen-card" data-name="{{ a.name|lower }}" data-region="{{ a.region or '' }}">
-  <h3>{{ '🛒' if a.jenis == 'Agen' else '🚚' }} {{ a.name }}
-    <span class="jenis-badge {{ 'j-agen' if a.jenis == 'Agen' else 'j-dist' }}">{{ a.jenis or 'Distributor' }}</span>
-  </h3>
+  <h3>🛒 {{ a.name }}
+    {% if a.verified %}<span class="verified">✔ Terverifikasi</span>{% endif %}</h3>
   <div class="meta">📍 {{ a.city or '—' }}, {{ a.region or '—' }} ·
     <span class="stars">★</span> {{ it.rating }} ({{ it.count }})</div>
   <p class="muted small">{{ a.description or '' }}</p>

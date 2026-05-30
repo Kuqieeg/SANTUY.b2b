@@ -109,6 +109,7 @@ class Agen(db.Model):
     contact_whatsapp = db.Column(db.String(60))
     contact_email = db.Column(db.String(160))
     jenis = db.Column(db.String(20), default="Distributor")  # 'Agen' atau 'Distributor'
+    verified = db.Column(db.Integer, default=0)
 
 
 class Rating(db.Model):
@@ -134,6 +135,7 @@ class User(UserMixin, db.Model):
     umkm_id = db.Column(db.Integer, db.ForeignKey("umkm.id"))
     agen_id = db.Column(db.Integer, db.ForeignKey("agen.id"))
     created = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False)
     umkm = db.relationship("Umkm")
     agen = db.relationship("Agen")
 
@@ -152,15 +154,38 @@ def init_db(app):
         _migrate()
         if Umkm.query.count() == 0:
             seed()
+        ensure_admin()
 
 
 def _migrate():
     """Migrasi ringan: tambah kolom baru pada DB lama tanpa kehilangan data."""
-    cols = [c["name"] for c in sa_inspect(db.engine).get_columns("agen")]
-    if "jenis" not in cols:
+    insp = sa_inspect(db.engine)
+    agen_cols = [c["name"] for c in insp.get_columns("agen")]
+    if "jenis" not in agen_cols:
         db.session.execute(text(
             "ALTER TABLE agen ADD COLUMN jenis VARCHAR(20) DEFAULT 'Distributor'"))
-        db.session.commit()
+    if "verified" not in agen_cols:
+        db.session.execute(text("ALTER TABLE agen ADD COLUMN verified INTEGER DEFAULT 0"))
+    user_cols = [c["name"] for c in insp.get_columns("user")]
+    if "is_admin" not in user_cols:
+        db.session.execute(text("ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT 0"))
+    db.session.commit()
+
+
+def ensure_admin():
+    """Pastikan ada satu akun admin (kredensial dari env, ada default untuk demo)."""
+    email = os.environ.get("ADMIN_EMAIL", "admin@santuy.id").strip().lower()
+    password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    if User.query.filter_by(is_admin=True).first():
+        return
+    u = User.query.filter_by(email=email).first()
+    if u:
+        u.is_admin = True
+    else:
+        u = User(email=email, role="admin", name="Administrator", is_admin=True)
+        u.set_password(password)
+        db.session.add(u)
+    db.session.commit()
 
 
 def seed():

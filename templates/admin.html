@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Panel Admin · SANTUY{% endblock %}
+{% block content %}
+<div class="dash-head">
+  <div>
+    <h1>🛡️ Panel Admin</h1>
+    <div class="meta">Kelola status verifikasi Produsen (UMKM) & Agen.</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Produsen / UMKM ({{ umkms|length }})</h3>
+  <table class="tbl">
+    <thead><tr><th>Nama</th><th>Lokasi</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for u in umkms %}
+      <tr>
+        <td><b>{{ u.name }}</b></td>
+        <td>{{ u.city or '—' }}, {{ u.region or '—' }}</td>
+        <td>{% if u.verified %}<span class="verified">✔ Terverifikasi</span>{% else %}<span class="muted small">Belum</span>{% endif %}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_toggle_umkm', uid=u.id) }}">
+            <button class="btn small {{ 'ghost' if u.verified else '' }}" type="submit">
+              {{ 'Cabut' if u.verified else 'Verifikasi' }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="panel" style="margin-top:16px">
+  <h3>Agen ({{ agens|length }})</h3>
+  <table class="tbl">
+    <thead><tr><th>Nama</th><th>Lokasi</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for a in agens %}
+      <tr>
+        <td><b>{{ a.name }}</b></td>
+        <td>{{ a.city or '—' }}, {{ a.region or '—' }}</td>
+        <td>{% if a.verified %}<span class="verified">✔ Terverifikasi</span>{% else %}<span class="muted small">Belum</span>{% endif %}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin_toggle_agen', aid=a.id) }}">
+            <button class="btn small {{ 'ghost' if a.verified else '' }}" type="submit">
+              {{ 'Cabut' if a.verified else 'Verifikasi' }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

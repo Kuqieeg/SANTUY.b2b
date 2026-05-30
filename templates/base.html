@@ -14,14 +14,17 @@
     </a>
     <nav class="nav">
       <a href="{{ url_for('index') }}">Katalog</a>
+      <a href="{{ url_for('produsen_list') }}">Produsen</a>
       <a href="{{ url_for('agen_list') }}">Agen</a>
       {% if current_user.is_authenticated %}
-        {% if current_user.role == 'umkm' %}
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('admin_panel') }}">Admin</a>
+        {% elif current_user.role == 'umkm' %}
           <a href="{{ url_for('dashboard') }}">Dashboard</a>
         {% else %}
           <a href="{{ url_for('agen_dashboard') }}">Dashboard</a>
         {% endif %}
-        <span class="who-tag">{{ '🏪' if current_user.role == 'umkm' else '🛒' }} {{ current_user.name }}</span>
+        <span class="who-tag">{{ '🛡️' if current_user.is_admin else ('🏪' if current_user.role == 'umkm' else '🛒') }} {{ current_user.name }}</span>
         <a class="nav-btn" href="{{ url_for('logout') }}">Keluar</a>
       {% else %}
         <a href="{{ url_for('login') }}">Masuk</a>

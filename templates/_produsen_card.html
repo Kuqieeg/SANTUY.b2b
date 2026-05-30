@@ -1,0 +1,16 @@
+{% set u = it.u %}
+<div class="panel agen-card" data-name="{{ u.name|lower }}" data-region="{{ u.region or '' }}">
+  <h3>🏪 {{ u.name }}
+    {% if u.verified %}<span class="verified">✔ Terverifikasi</span>{% endif %}</h3>
+  <div class="meta">📍 {{ u.city or '—' }}, {{ u.region or '—' }} ·
+    <span class="stars">★</span> {{ it.rating }} ({{ it.count }}) · {{ it.products }} produk</div>
+  <p class="muted small">{{ u.description or '' }}</p>
+  {% if u.contact_name %}<div class="cp-row">👤 {{ u.contact_name }}</div>{% endif %}
+  {% if u.contact_phone %}<div class="cp-row">📞 <a href="tel:{{ u.contact_phone }}">{{ u.contact_phone }}</a></div>{% endif %}
+  <a class="btn block" href="{{ url_for('index') }}?q={{ u.name|urlencode }}">Lihat produk →</a>
+  {% if u.contact_whatsapp %}
+    <a class="btn wa block" target="_blank"
+       href="https://wa.me/{{ u.contact_whatsapp }}?text=Halo%20{{ u.contact_name|urlencode }}%2C%20saya%20Agen%20di%20SANTUY%20tertarik%20dengan%20produk%20Anda.">
+      💬 Hubungi via WhatsApp</a>
+  {% endif %}
+</div>

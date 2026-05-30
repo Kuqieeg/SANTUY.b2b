@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Cari Produsen · SANTUY{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Direktori Produsen (UMKM)</h1>
+  <p>Temukan produsen/vendor UMKM. Klik "Lihat produk" untuk melihat katalognya.</p>
+  <div class="agen-filter">
+    <input id="pr-q" type="text" placeholder="🔍 Cari nama produsen...">
+    <select id="pr-region">
+      <option value="">Semua daerah</option>
+      {% for r in regions %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+    </select>
+  </div>
+</section>
+
+<div class="agen-grid" id="pr-grid">
+  {% for it in umkms %}{% include '_produsen_card.html' %}{% endfor %}
+</div>
+<p class="empty pr-empty">Tidak ada produsen yang cocok.</p>
+{% endblock %}
+{% block scripts %}
+<script>
+const prQ = document.getElementById('pr-q');
+const prRegion = document.getElementById('pr-region');
+const prEmpty = document.querySelector('.pr-empty');
+function prApply(){
+  const q = prQ.value.trim().toLowerCase(), rg = prRegion.value;
+  let visible = 0;
+  document.querySelectorAll('#pr-grid .agen-card').forEach(card => {
+    const show = (!q || card.dataset.name.includes(q)) && (!rg || card.dataset.region === rg);
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  prEmpty.style.display = visible === 0 ? 'block' : 'none';
+}
+[prQ, prRegion].forEach(el => el.addEventListener('input', prApply));
+prApply();
+</script>
+{% endblock %}

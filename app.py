@@ -112,6 +112,16 @@ def agen_required(f):
     return wrapper
 
 
+def admin_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash("Halaman khusus admin.")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return wrapper
+
+
 # ----------------------------- Pages -----------------------------
 @app.route("/")
 def index():
@@ -274,7 +284,6 @@ def daftar():
             db.session.flush()
             user.umkm_id = profile.id
         else:
-            jenis = f.get("jenis") if f.get("jenis") in ("Agen", "Distributor") else "Distributor"
             profile = Agen(name=name,
                            description=(f.get("description") or "").strip(),
                            region=(f.get("region") or "").strip(),
@@ -282,7 +291,7 @@ def daftar():
                            contact_name=(f.get("contact_name") or name).strip(),
                            contact_phone=(f.get("contact_phone") or "").strip(),
                            contact_whatsapp=(f.get("contact_whatsapp") or "").strip(),
-                           contact_email=email, jenis=jenis)
+                           contact_email=email)
             db.session.add(profile)
             db.session.flush()
             user.agen_id = profile.id
@@ -308,6 +317,8 @@ def login():
             flash(f"Halo {user.name}!")
             if nxt:
                 return redirect(nxt)
+            if user.is_admin:
+                return redirect(url_for("admin_panel"))
             return redirect(url_for("dashboard" if user.role == "umkm" else "agen_dashboard"))
         flash("Email atau password salah.")
     return render_template("login.html")
@@ -454,6 +465,18 @@ def agen_list():
     return render_template("agen.html", agens=data, regions=regions)
 
 
+@app.route("/produsen")
+def produsen_list():
+    umkms = Umkm.query.order_by(Umkm.name).all()
+    data = []
+    for u in umkms:
+        avg, n = umkm_rating(u.id)
+        cnt = Product.query.filter_by(umkm_id=u.id).count()
+        data.append({"u": u, "rating": avg, "count": n, "products": cnt})
+    regions = sorted({u.region for u in umkms if u.region})
+    return render_template("produsen.html", umkms=data, regions=regions)
+
+
 @app.route("/agen/<int:aid>/rating", methods=["POST"])
 @login_required
 def rate_agen(aid):
@@ -511,13 +534,44 @@ def agen_profil():
         a.contact_phone = (f.get("contact_phone") or "").strip()
         a.contact_whatsapp = (f.get("contact_whatsapp") or "").strip()
         a.contact_email = (f.get("contact_email") or "").strip()
-        if f.get("jenis") in ("Agen", "Distributor"):
-            a.jenis = f.get("jenis")
         current_user.name = a.name
         db.session.commit()
         flash("Profil diperbarui.")
         return redirect(url_for("agen_dashboard"))
     return render_template("profil_agen.html", agen=a)
+
+
+# ----------------------------- Panel Admin -----------------------------
+@app.route("/admin")
+@admin_required
+def admin_panel():
+    umkms = Umkm.query.order_by(Umkm.name).all()
+    agens = Agen.query.order_by(Agen.name).all()
+    return render_template("admin.html", umkms=umkms, agens=agens)
+
+
+@app.route("/admin/umkm/<int:uid>/verify", methods=["POST"])
+@admin_required
+def admin_toggle_umkm(uid):
+    u = db.session.get(Umkm, uid)
+    if not u:
+        abort(404)
+    u.verified = 0 if u.verified else 1
+    db.session.commit()
+    flash(("Verifikasi diberikan ke " if u.verified else "Verifikasi dicabut dari ") + u.name)
+    return redirect(url_for("admin_panel"))
+
+
+@app.route("/admin/agen/<int:aid>/verify", methods=["POST"])
+@admin_required
+def admin_toggle_agen(aid):
+    a = db.session.get(Agen, aid)
+    if not a:
+        abort(404)
+    a.verified = 0 if a.verified else 1
+    db.session.commit()
+    flash(("Verifikasi diberikan ke " if a.verified else "Verifikasi dicabut dari ") + a.name)
+    return redirect(url_for("admin_panel"))
 
 
 if __name__ == "__main__":

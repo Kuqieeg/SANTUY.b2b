@@ -1,20 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Direktori Agen & Distributor · SANTUY{% endblock %}
+{% block title %}Direktori Agen · SANTUY{% endblock %}
 {% block content %}
 <section class="hero">
-  <h1>Direktori Agen &amp; Distributor</h1>
-  <p>Mitra penyalur produk UMKM.
+  <h1>Direktori Agen</h1>
+  <p>Agen yang siap menyalurkan produk UMKM.
     {% if current_user.is_authenticated and current_user.role == 'umkm' %}
-      Sebagai UMKM, Anda dapat memberi rating balik.
+      Sebagai UMKM, Anda dapat memberi rating balik ke Agen.
     {% endif %}
   </p>
   <div class="agen-filter">
-    <input id="ag-q" type="text" placeholder="🔍 Cari nama agen/distributor...">
-    <select id="ag-jenis">
-      <option value="">Semua jenis</option>
-      <option value="Agen">🛒 Agen saja</option>
-      <option value="Distributor">🚚 Distributor saja</option>
-    </select>
+    <input id="ag-q" type="text" placeholder="🔍 Cari nama agen...">
     <select id="ag-region">
       <option value="">Semua daerah</option>
       {% for r in regions %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
@@ -22,46 +17,27 @@
   </div>
 </section>
 
-<section class="ag-section" data-jenis="Agen">
-  <h2 class="section-title">🛒 Agen</h2>
-  <div class="agen-grid">
-    {% for it in agens if it.a.jenis == 'Agen' %}{% include '_agen_card.html' %}{% endfor %}
-  </div>
-  <p class="empty ag-empty">Tidak ada agen yang cocok.</p>
-</section>
-
-<section class="ag-section" data-jenis="Distributor">
-  <h2 class="section-title">🚚 Distributor</h2>
-  <div class="agen-grid">
-    {% for it in agens if it.a.jenis != 'Agen' %}{% include '_agen_card.html' %}{% endfor %}
-  </div>
-  <p class="empty ag-empty">Tidak ada distributor yang cocok.</p>
-</section>
+<div class="agen-grid" id="ag-grid">
+  {% for it in agens %}{% include '_agen_card.html' %}{% endfor %}
+</div>
+<p class="empty ag-empty">Tidak ada agen yang cocok.</p>
 {% endblock %}
 {% block scripts %}
 <script>
 const agQ = document.getElementById('ag-q');
-const agJenis = document.getElementById('ag-jenis');
 const agRegion = document.getElementById('ag-region');
+const agEmpty = document.querySelector('.ag-empty');
 function agApply(){
-  const q = agQ.value.trim().toLowerCase();
-  const jn = agJenis.value, rg = agRegion.value;
-  document.querySelectorAll('.ag-section').forEach(sec => {
-    const wantJenis = !jn || sec.dataset.jenis === jn;
-    sec.style.display = wantJenis ? '' : 'none';
-    let visible = 0;
-    sec.querySelectorAll('.agen-card').forEach(card => {
-      const okName = !q || card.dataset.name.includes(q);
-      const okReg = !rg || card.dataset.region === rg;
-      const show = okName && okReg;
-      card.style.display = show ? '' : 'none';
-      if (show) visible++;
-    });
-    const emp = sec.querySelector('.ag-empty');
-    if (emp) emp.style.display = (wantJenis && visible === 0) ? 'block' : 'none';
+  const q = agQ.value.trim().toLowerCase(), rg = agRegion.value;
+  let visible = 0;
+  document.querySelectorAll('#ag-grid .agen-card').forEach(card => {
+    const show = (!q || card.dataset.name.includes(q)) && (!rg || card.dataset.region === rg);
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
   });
+  agEmpty.style.display = visible === 0 ? 'block' : 'none';
 }
-[agQ, agJenis, agRegion].forEach(el => el.addEventListener('input', agApply));
+[agQ, agRegion].forEach(el => el.addEventListener('input', agApply));
 agApply();
 </script>
 {% endblock %}

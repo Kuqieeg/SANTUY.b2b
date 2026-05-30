@@ -119,4 +119,7 @@ $('geo-btn').onclick = () => {
   );
 };
 
+// Prefill kata kunci dari URL (mis. klik 'Lihat produk' di Direktori Produsen)
+const _initQ = new URLSearchParams(location.search).get('q');
+if (_initQ) $('q').value = _initQ;
 load();
