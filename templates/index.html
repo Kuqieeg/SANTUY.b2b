@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Cari produk grosir dari UMKM terpercaya</h1>
+  <p>Smart search dengan auto-suggestion, filter dinamis, sorting, dan pencarian berbasis lokasi.</p>
+  <div class="searchbox">
+    <input id="q" type="text" autocomplete="off"
+           placeholder="Cari produk, kategori, atau nama UMKM... (mis. kopi, sambal, batik)">
+    <div id="suggest" class="suggest"></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <aside class="panel">
+    <h3>Filter</h3>
+    <div class="filter-group">
+      <label>Kategori</label>
+      <select id="f-category">
+        <option value="">Semua kategori</option>
+        {% for c in categories %}
+          <option value="{{ c['name'] }}">{{ c['icon'] }} {{ '— ' if c['parent_id'] }}{{ c['name'] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Daerah</label>
+      <select id="f-region">
+        <option value="">Semua daerah</option>
+        {% for r in regions %}<option value="{{ r }}">{{ r }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Rentang harga (Rp)</label>
+      <div class="price-row">
+        <input id="f-pmin" type="number" placeholder="Min" min="0">
+        <input id="f-pmax" type="number" placeholder="Maks" min="0">
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>Pencarian berbasis lokasi</label>
+      <button id="geo-btn" class="btn ghost block">📍 Gunakan lokasi saya</button>
+      <div id="loc-status" class="loc-status">Lokasi belum aktif.</div>
+    </div>
+    <button id="reset" class="btn ghost block">Reset filter</button>
+  </aside>
+
+  <section>
+    <div class="toolbar">
+      <span class="count" id="count">Memuat…</span>
+      <div class="right">
+        <label style="margin:0;font-size:13px">Urutkan:</label>
+        <select id="sort" style="width:auto">
+          <option value="relevan">Relevan</option>
+          <option value="termurah">Harga termurah</option>
+          <option value="termahal">Harga termahal</option>
+          <option value="rating">Rating tertinggi</option>
+          <option value="terpopuler">Terpopuler</option>
+          <option value="terdekat">Terdekat (lokasi)</option>
+        </select>
+      </div>
+    </div>
+    <div id="grid" class="grid"></div>
+  </section>
+</div>
+<div id="toast" class="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

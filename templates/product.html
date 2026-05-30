@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}{{ p.name }} · SANTUY{% endblock %}
+{% block content %}
+<div class="crumb"><a href="/">← Kembali ke katalog</a></div>
+
+<div class="detail">
+  <div>
+    <div class="big">{{ p.emoji }}</div>
+    <div style="margin-top:10px" class="badges">
+      <span class="tier">{{ p.price_tier }}</span>
+      {% for b in p.badges %}
+        <span class="badge {% if b=='Terlaris' %}b-Terlaris{% elif b=='Top Rated' %}b-Top{% else %}b-Stok{% endif %}">{{ b }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <h1 style="margin:0 0 4px">{{ p.name }}</h1>
+    <div class="meta" style="margin-bottom:10px">
+      📁 {{ p.category }} · <span class="stars">{{ '★' * (p.rating|round|int) }}{{ '☆' * (5 - (p.rating|round|int)) }}</span>
+      {{ p.rating }} ({{ p.rating_count }} ulasan)
+    </div>
+    <div style="font-size:26px;font-weight:800;color:var(--brand)">{{ p.price_str }}
+      <span style="font-size:14px;color:var(--muted);font-weight:400">/ {{ p.unit }} (grosir B2B)</span>
+    </div>
+
+    <div style="margin-top:14px">
+      <div class="kv"><span>Stok tersedia</span><span>{{ p.stock }} {{ p.unit }}</span></div>
+      <div class="kv"><span>Minimum order</span><span>{{ p.min_order }} {{ p.unit }}</span></div>
+      <div class="kv"><span>Berat / unit</span><span>{{ p.weight_gram }} gram</span></div>
+      <div class="kv"><span>Terjual</span><span>{{ p.sold }} · {{ p.views }} dilihat</span></div>
+    </div>
+
+    <div class="cp-box">
+      <h4>🏪 {{ umkm.name }}
+        {% if umkm.verified %}<span class="verified">✔ Terverifikasi</span>{% endif %}
+      </h4>
+      <div class="meta">📍 {{ umkm.city }}, {{ umkm.region }} ·
+        <span class="stars">★</span> {{ umkm_rating }} ({{ umkm_rating_count }})</div>
+      <p style="font-size:13px;color:var(--muted)">{{ umkm.description }}</p>
+      <h4 style="margin-top:12px">Contact Person</h4>
+      <div class="cp-row">👤 <b>{{ umkm.contact_name }}</b></div>
+      <div class="cp-row">📞 <a href="tel:{{ umkm.contact_phone }}">{{ umkm.contact_phone }}</a></div>
+      <div class="cp-row">✉️ <a href="mailto:{{ umkm.contact_email }}">{{ umkm.contact_email }}</a></div>
+      <a class="btn wa block" target="_blank"
+         href="https://wa.me/{{ umkm.contact_whatsapp }}?text=Halo%20{{ umkm.contact_name|urlencode }}%2C%20saya%20Agen%20tertarik%20produk%20{{ p.name|urlencode }}%20di%20SANTUY.%20Bisa%20diskusi%20harga%20%26%20stok%3F">
+        💬 Hubungi via WhatsApp
+      </a>
+      <p class="note">Negosiasi harga, stok, dan detail dilakukan langsung dengan contact person UMKM (SANTUY tidak menyediakan chat dalam aplikasi).</p>
+    </div>
+  </div>
+</div>
+
+<h2 class="section-title">Ulasan & Rating Agen</h2>
+<div class="panel">
+  <div id="reviews">
+    {% for r in reviews %}
+      <div class="review">
+        <div class="who">{{ r.author_name }}
+          <span class="stars">{{ '★' * r.stars }}{{ '☆' * (5 - r.stars) }}</span></div>
+        <div style="font-size:13px">{{ r.comment }}</div>
+        <div class="meta">{{ r.created.strftime('%d %b %Y') if r.created else '' }}</div>
+      </div>
+    {% else %}
+      <p class="empty">Belum ada ulasan. Jadilah yang pertama!</p>
+    {% endfor %}
+  </div>
+
+  {% if current_user.is_authenticated and current_user.role == 'agen' %}
+  <h4 style="margin-top:16px">Beri rating untuk UMKM ini (sebagai Agen)</h4>
+  <div class="rate-form">
+    <div class="star-pick" id="starpick">
+      <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span>
+      <span data-v="4">★</span><span data-v="5">★</span>
+    </div>
+    <textarea id="r-comment" rows="2" placeholder="Tulis ulasan Anda..."></textarea>
+    <button class="btn" id="r-submit" style="align-self:flex-start"
+            data-umkm="{{ umkm.id }}">Kirim rating</button>
+  </div>
+  {% elif current_user.is_authenticated %}
+    <p class="note" style="margin-top:14px">Hanya akun <b>Agen</b> yang dapat menilai UMKM.</p>
+  {% else %}
+    <p class="note" style="margin-top:14px"><a href="{{ url_for('login') }}">Masuk</a> sebagai Agen untuk memberi rating.</p>
+  {% endif %}
+</div>
+
+{% if related %}
+<h2 class="section-title">Produk serupa</h2>
+<div class="grid">
+  {% for r in related %}
+  <a class="card" href="/produk/{{ r.id }}">
+    <div class="thumb">{{ r.emoji }}</div>
+    <div class="body">
+      <div class="pname">{{ r.name }}</div>
+      <div class="price">{{ r.price_str }} <span class="unit">/{{ r.unit }}</span></div>
+      <div class="meta">📍 {{ r.city }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+<div id="toast" class="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+{% if current_user.is_authenticated and current_user.role == 'agen' %}
+<script>
+let picked = 0;
+const sp = document.getElementById('starpick');
+const stars = [...sp.querySelectorAll('span')];
+function paint(n){ stars.forEach(s => s.classList.toggle('on', +s.dataset.v <= n)); }
+stars.forEach(s => {
+  s.onmouseenter = () => paint(+s.dataset.v);
+  s.onclick = () => { picked = +s.dataset.v; paint(picked); };
+});
+sp.onmouseleave = () => paint(picked);
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.getElementById('r-submit').onclick = async (e) => {
+  if (!picked) return toast('Pilih jumlah bintang dulu.');
+  const btn = e.target;
+  const res = await fetch('/api/rating', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      umkm_id: +btn.dataset.umkm, stars: picked,
+      comment: document.getElementById('r-comment').value
+    })
+  });
+  const data = await res.json();
+  if (data.ok){
+    const div = document.createElement('div');
+    div.className = 'review';
+    div.innerHTML = `<div class="who">${data.author}
+      <span class="stars">${'★'.repeat(picked)}${'☆'.repeat(5-picked)}</span></div>
+      <div style="font-size:13px">${document.getElementById('r-comment').value || ''}</div>
+      <div class="meta">baru saja</div>`;
+    const box = document.getElementById('reviews');
+    if (box.querySelector('.empty')) box.innerHTML = '';
+    box.prepend(div);
+    toast(`Terima kasih! Rating UMKM kini ${data.rating} (${data.count} ulasan).`);
+    picked = 0; paint(0);
+    document.getElementById('r-comment').value = '';
+  } else { toast(data.error || 'Gagal mengirim.'); }
+};
+</script>
+{% endif %}
+{% endblock %}

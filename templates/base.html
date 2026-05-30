@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SANTUY{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a href="/" class="brand">
+      <span class="logo">🤝</span>
+      <span class="brand-text"><b>SANTUY</b><small>Sahabat Antar Niaga Terhubung untuk You</small></span>
+    </a>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}">Katalog</a>
+      <a href="{{ url_for('agen_list') }}">Agen</a>
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'umkm' %}
+          <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        {% endif %}
+        <span class="who-tag">{{ '🏪' if current_user.role == 'umkm' else '🛒' }} {{ current_user.name }}</span>
+        <a class="nav-btn" href="{{ url_for('logout') }}">Keluar</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Masuk</a>
+        <a class="nav-btn" href="{{ url_for('daftar') }}">Daftar</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash-wrap">
+        {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>{% block content %}{% endblock %}</main>
+  <footer>
+    <p>SANTUY &mdash; menghubungkan Produsen/Vendor (UMKM) dengan Agen/Distributor.
+       Komunikasi dilakukan via contact person yang tersedia.</p>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

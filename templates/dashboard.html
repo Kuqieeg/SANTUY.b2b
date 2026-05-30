@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · SANTUY{% endblock %}
+{% block content %}
+<div class="dash-head">
+  <div>
+    <h1>Dashboard UMKM</h1>
+    <div class="meta">🏪 <b>{{ umkm.name }}</b>
+      {% if umkm.verified %}<span class="verified">✔ Terverifikasi</span>{% endif %}
+      · 📍 {{ umkm.city or '—' }}, {{ umkm.region or '—' }}
+      · <span class="stars">★</span> {{ rating }} ({{ rating_count }} ulasan)
+    </div>
+  </div>
+  <div class="dash-actions">
+    <a class="btn ghost" href="{{ url_for('profil') }}">Edit Profil</a>
+    <a class="btn" href="{{ url_for('produk_baru') }}">+ Tambah Produk</a>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Produk Saya ({{ products|length }})</h3>
+  {% if products %}
+  <table class="tbl">
+    <thead><tr><th></th><th>Nama</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Terjual</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td class="emoji-cell">{{ p.emoji }}</td>
+        <td><a href="{{ url_for('product_detail', pid=p.id) }}">{{ p.name }}</a></td>
+        <td>{{ p.category.name if p.category else '—' }}</td>
+        <td>Rp{{ '{:,}'.format(p.price).replace(',', '.') }}</td>
+        <td>{{ p.stock }} {{ p.unit }}</td>
+        <td>{{ p.sold }}</td>
+        <td class="row-actions">
+          <a class="link" href="{{ url_for('produk_edit', pid=p.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('produk_hapus', pid=p.id) }}"
+                onsubmit="return confirm('Hapus produk {{ p.name }}?')">
+            <button class="link danger" type="submit">Hapus</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="empty">Belum ada produk. Klik <b>Tambah Produk</b> untuk memulai.</p>
+  {% endif %}
+</div>
+{% endblock %}

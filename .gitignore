@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Database lokal (akan dibuat ulang otomatis)
+*.db
+
+# Secrets / environment
+.env
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# File sementara
+_test.txt
+_wtest*.txt

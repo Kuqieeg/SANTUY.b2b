@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if product else 'Tambah' }} Produk · SANTUY{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('dashboard') }}">← Kembali ke dashboard</a></div>
+<div class="auth-wrap">
+  <div class="panel auth-card wide">
+    <h1>{{ 'Edit Produk' if product else 'Tambah Produk' }}</h1>
+    <form method="post" class="form">
+      <div class="grid2">
+        <label>Nama produk
+          <input type="text" name="name" required value="{{ product.name if product else '' }}">
+        </label>
+        <label>Emoji ikon
+          <input type="text" name="emoji" maxlength="4" value="{{ product.emoji if product else '📦' }}">
+        </label>
+      </div>
+      <label>Deskripsi
+        <textarea name="description" rows="2">{{ product.description if product else '' }}</textarea>
+      </label>
+      <div class="grid2">
+        <label>Kategori
+          <select name="category_id">
+            <option value="">— pilih —</option>
+            {% for c in categories %}
+              <option value="{{ c.id }}"
+                {{ 'selected' if product and product.category_id == c.id }}>
+                {{ c.icon }} {{ '— ' if c.parent_id }}{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Harga grosir (Rp)
+          <input type="number" name="price" min="1" required value="{{ product.price if product else '' }}">
+        </label>
+      </div>
+      <div class="grid3">
+        <label>Satuan
+          <input type="text" name="unit" value="{{ product.unit if product else 'pcs' }}">
+        </label>
+        <label>Stok
+          <input type="number" name="stock" min="0" value="{{ product.stock if product else 0 }}">
+        </label>
+        <label>Min. order
+          <input type="number" name="min_order" min="1" value="{{ product.min_order if product else 1 }}">
+        </label>
+      </div>
+      <label>Berat per unit (gram)
+        <input type="number" name="weight_gram" min="0" value="{{ product.weight_gram if product else 0 }}">
+      </label>
+      <button class="btn block" type="submit">{{ 'Simpan Perubahan' if product else 'Tambah Produk' }}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

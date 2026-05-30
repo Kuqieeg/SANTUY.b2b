@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Daftar · SANTUY{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="panel auth-card wide">
+    <h1>Buat Akun</h1>
+    <p class="muted">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk di sini</a>.</p>
+    <form method="post" class="form">
+      <label>Daftar sebagai
+        <select name="role" id="role" required>
+          <option value="umkm" {{ 'selected' if form.get('role')=='umkm' }}>🏪 UMKM (Produsen/Vendor)</option>
+          <option value="agen" {{ 'selected' if form.get('role')=='agen' }}>🛒 Agen (Distributor)</option>
+        </select>
+      </label>
+      <label>Nama {{ 'usaha' }} / toko
+        <input type="text" name="name" required value="{{ form.get('name','') }}"
+               placeholder="mis. Keripik Mantul / Toko Berkah Jaya">
+      </label>
+      <div class="grid2">
+        <label>Email
+          <input type="email" name="email" required value="{{ form.get('email','') }}">
+        </label>
+        <label>Password <small>(min 6)</small>
+          <input type="password" name="password" required minlength="6">
+        </label>
+      </div>
+      <label>Deskripsi singkat
+        <textarea name="description" rows="2" placeholder="Apa yang Anda jual / distribusikan?">{{ form.get('description','') }}</textarea>
+      </label>
+      <div class="grid2">
+        <label>Provinsi / Daerah
+          <input type="text" name="region" value="{{ form.get('region','') }}" placeholder="mis. Jawa Barat">
+        </label>
+        <label>Kota
+          <input type="text" name="city" value="{{ form.get('city','') }}" placeholder="mis. Bandung">
+        </label>
+      </div>
+      <h4 class="form-sec">Contact Person</h4>
+      <div class="grid2">
+        <label>Nama kontak
+          <input type="text" name="contact_name" value="{{ form.get('contact_name','') }}">
+        </label>
+        <label>Telepon
+          <input type="text" name="contact_phone" value="{{ form.get('contact_phone','') }}">
+        </label>
+      </div>
+      <label>WhatsApp <small>(format 62..., untuk tombol chat)</small>
+        <input type="text" name="contact_whatsapp" value="{{ form.get('contact_whatsapp','') }}" placeholder="6281234567890">
+      </label>
+      <button class="btn block" type="submit">Daftar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Edit Profil · SANTUY{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('dashboard') }}">← Kembali ke dashboard</a></div>
+<div class="auth-wrap">
+  <div class="panel auth-card wide">
+    <h1>Edit Profil UMKM</h1>
+    <form method="post" class="form">
+      <label>Nama usaha
+        <input type="text" name="name" required value="{{ umkm.name }}">
+      </label>
+      <label>Deskripsi
+        <textarea name="description" rows="2">{{ umkm.description or '' }}</textarea>
+      </label>
+      <div class="grid2">
+        <label>Provinsi / Daerah
+          <input type="text" name="region" value="{{ umkm.region or '' }}">
+        </label>
+        <label>Kota
+          <input type="text" name="city" value="{{ umkm.city or '' }}">
+        </label>
+      </div>
+      <h4 class="form-sec">Contact Person</h4>
+      <div class="grid2">
+        <label>Nama kontak
+          <input type="text" name="contact_name" value="{{ umkm.contact_name or '' }}">
+        </label>
+        <label>Telepon
+          <input type="text" name="contact_phone" value="{{ umkm.contact_phone or '' }}">
+        </label>
+      </div>
+      <div class="grid2">
+        <label>WhatsApp <small>(62...)</small>
+          <input type="text" name="contact_whatsapp" value="{{ umkm.contact_whatsapp or '' }}">
+        </label>
+        <label>Email kontak
+          <input type="email" name="contact_email" value="{{ umkm.contact_email or '' }}">
+        </label>
+      </div>
+      <h4 class="form-sec">Lokasi (untuk pencarian berbasis jarak)</h4>
+      <div class="grid2">
+        <label>Latitude
+          <input type="text" name="lat" id="lat" value="{{ umkm.lat if umkm.lat is not none else '' }}">
+        </label>
+        <label>Longitude
+          <input type="text" name="lng" id="lng" value="{{ umkm.lng if umkm.lng is not none else '' }}">
+        </label>
+      </div>
+      <button type="button" class="btn ghost" id="geo">📍 Isi otomatis dari lokasi saya</button>
+      <button class="btn block" type="submit">Simpan Profil</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('geo').onclick = () => {
+  if (!navigator.geolocation) return alert('Geolokasi tidak didukung browser ini.');
+  navigator.geolocation.getCurrentPosition(p => {
+    document.getElementById('lat').value = p.coords.latitude.toFixed(4);
+    document.getElementById('lng').value = p.coords.longitude.toFixed(4);
+  }, () => alert('Gagal membaca lokasi.'));
+};
+</script>
+{% endblock %}
