@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Agen · SANTUY{% endblock %}
+{% block content %}
+<div class="dash-head">
+  <div>
+    <h1>Dashboard Distributor</h1>
+    <div class="meta">🛒 <b>{{ agen.name }}</b>
+      · 📍 {{ agen.city or '—' }}, {{ agen.region or '—' }}
+      · <span class="stars">★</span> {{ rating }} ({{ rating_count }} ulasan diterima)
+    </div>
+  </div>
+  <div class="dash-actions">
+    <a class="btn ghost" href="{{ url_for('agen_profil') }}">Edit Profil</a>
+    <a class="btn" href="{{ url_for('index') }}">Jelajah Katalog</a>
+  </div>
+</div>
+
+<div class="wrap2">
+  <div class="panel">
+    <h3>Reputasi — Ulasan dari Produsen ({{ rating_count }})</h3>
+    {% if reviews %}
+      {% for r in reviews %}
+        <div class="review">
+          <div class="who">{{ r.author_name }}
+            <span class="stars">{{ '★' * r.stars }}{{ '☆' * (5 - r.stars) }}</span></div>
+          <div style="font-size:13px">{{ r.comment }}</div>
+          <div class="meta">{{ r.created.strftime('%d %b %Y') if r.created else '' }}</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">Belum ada produsen yang menilai Anda.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h3>Riwayat Penilaian Saya ({{ history|length }})</h3>
+    {% if history %}
+      {% for h in history %}
+        <div class="review">
+          <div class="who">🏪 {{ h.name }}
+            <span class="stars">{{ '★' * h.stars }}{{ '☆' * (5 - h.stars) }}</span></div>
+          <div style="font-size:13px">{{ h.comment }}</div>
+          <div class="meta">{{ h.created.strftime('%d %b %Y') if h.created else '' }}</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">Anda belum memberi rating ke produsen mana pun.
+        Buka <a href="{{ url_for('index') }}">katalog</a>, pilih produk, lalu beri rating.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

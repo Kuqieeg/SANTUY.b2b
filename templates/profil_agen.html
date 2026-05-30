@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Edit Profil Distributor · SANTUY{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('agen_dashboard') }}">← Kembali ke dashboard</a></div>
+<div class="auth-wrap">
+  <div class="panel auth-card wide">
+    <h1>Edit Profil Distributor</h1>
+    <form method="post" class="form">
+      <label>Nama distributor / toko
+        <input type="text" name="name" required value="{{ agen.name }}">
+      </label>
+      <label>Deskripsi
+        <textarea name="description" rows="2">{{ agen.description or '' }}</textarea>
+      </label>
+      <div class="grid2">
+        <label>Provinsi / Daerah
+          <input type="text" name="region" value="{{ agen.region or '' }}">
+        </label>
+        <label>Kota
+          <input type="text" name="city" value="{{ agen.city or '' }}">
+        </label>
+      </div>
+      <h4 class="form-sec">Contact Person</h4>
+      <div class="grid2">
+        <label>Nama kontak
+          <input type="text" name="contact_name" value="{{ agen.contact_name or '' }}">
+        </label>
+        <label>Telepon
+          <input type="text" name="contact_phone" value="{{ agen.contact_phone or '' }}">
+        </label>
+      </div>
+      <div class="grid2">
+        <label>WhatsApp <small>(62...)</small>
+          <input type="text" name="contact_whatsapp" value="{{ agen.contact_whatsapp or '' }}">
+        </label>
+        <label>Email kontak
+          <input type="email" name="contact_email" value="{{ agen.contact_email or '' }}">
+        </label>
+      </div>
+      <button class="btn block" type="submit">Simpan Profil</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -102,6 +102,16 @@ def umkm_required(f):
     return wrapper
 
 
+def agen_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != "agen":
+            flash("Halaman ini khusus akun Agen.")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return wrapper
+
+
 # ----------------------------- Pages -----------------------------
 @app.route("/")
 def index():
@@ -279,7 +289,7 @@ def daftar():
         db.session.commit()
         login_user(user)
         flash(f"Selamat datang, {name}! Akun {role.upper()} berhasil dibuat.")
-        return redirect(url_for("dashboard" if role == "umkm" else "index"))
+        return redirect(url_for("dashboard" if role == "umkm" else "agen_dashboard"))
     return render_template("daftar.html", form={})
 
 
@@ -297,7 +307,7 @@ def login():
             flash(f"Halo {user.name}!")
             if nxt:
                 return redirect(nxt)
-            return redirect(url_for("dashboard" if user.role == "umkm" else "index"))
+            return redirect(url_for("dashboard" if user.role == "umkm" else "agen_dashboard"))
         flash("Email atau password salah.")
     return render_template("login.html")
 
@@ -398,6 +408,7 @@ def _save_product(p):
     p.stock = _int("stock")
     p.weight_gram = _int("weight_gram")
     p.min_order = _int("min_order", 1)
+    p.sold = _int("sold", p.sold or 0)
     p.emoji = (f.get("emoji") or "📦").strip() or "📦"
     db.session.commit()
     return True, None
@@ -465,6 +476,44 @@ def rate_agen(aid):
     db.session.commit()
     flash(f"Rating untuk {a.name} terkirim.")
     return redirect(url_for("agen_list"))
+
+
+# ----------------------------- Dashboard Agen (distributor) -----------------------------
+@app.route("/agen/dashboard")
+@agen_required
+def agen_dashboard():
+    a = current_user.agen
+    avg, n = agen_rating(a.id)
+    reviews = (Rating.query.filter_by(target_type="agen", target_id=a.id)
+               .order_by(Rating.id.desc()).all())
+    given = (Rating.query.filter_by(author_type="agen", author_user_id=current_user.id)
+             .order_by(Rating.id.desc()).all())
+    targets = {u.id: u.name for u in Umkm.query.all()}
+    history = [{"name": targets.get(r.target_id, "UMKM"), "stars": r.stars,
+                "comment": r.comment, "created": r.created} for r in given]
+    return render_template("dashboard_agen.html", agen=a, rating=avg,
+                           rating_count=n, reviews=reviews, history=history)
+
+
+@app.route("/agen/profil", methods=["GET", "POST"])
+@agen_required
+def agen_profil():
+    a = current_user.agen
+    if request.method == "POST":
+        f = request.form
+        a.name = (f.get("name") or a.name).strip()
+        a.description = (f.get("description") or "").strip()
+        a.region = (f.get("region") or "").strip()
+        a.city = (f.get("city") or "").strip()
+        a.contact_name = (f.get("contact_name") or "").strip()
+        a.contact_phone = (f.get("contact_phone") or "").strip()
+        a.contact_whatsapp = (f.get("contact_whatsapp") or "").strip()
+        a.contact_email = (f.get("contact_email") or "").strip()
+        current_user.name = a.name
+        db.session.commit()
+        flash("Profil distributor diperbarui.")
+        return redirect(url_for("agen_dashboard"))
+    return render_template("profil_agen.html", agen=a)
 
 
 if __name__ == "__main__":

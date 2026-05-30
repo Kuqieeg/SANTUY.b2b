@@ -18,6 +18,8 @@
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'umkm' %}
           <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        {% else %}
+          <a href="{{ url_for('agen_dashboard') }}">Dashboard</a>
         {% endif %}
         <span class="who-tag">{{ '🏪' if current_user.role == 'umkm' else '🛒' }} {{ current_user.name }}</span>
         <a class="nav-btn" href="{{ url_for('logout') }}">Keluar</a>

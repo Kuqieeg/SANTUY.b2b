@@ -43,9 +43,14 @@
           <input type="number" name="min_order" min="1" value="{{ product.min_order if product else 1 }}">
         </label>
       </div>
-      <label>Berat per unit (gram)
-        <input type="number" name="weight_gram" min="0" value="{{ product.weight_gram if product else 0 }}">
-      </label>
+      <div class="grid2">
+        <label>Berat per unit (gram)
+          <input type="number" name="weight_gram" min="0" value="{{ product.weight_gram if product else 0 }}">
+        </label>
+        <label>Terjual <small>(jumlah unit yang sudah laku)</small>
+          <input type="number" name="sold" min="0" value="{{ product.sold if product else 0 }}">
+        </label>
+      </div>
       <button class="btn block" type="submit">{{ 'Simpan Perubahan' if product else 'Tambah Produk' }}</button>
     </form>
   </div>
