@@ -6,13 +6,21 @@
     <h1>Buat Akun</h1>
     <p class="muted">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk di sini</a>.</p>
     <form method="post" class="form">
-      <label>Daftar sebagai
-        <select name="role" id="role" required>
-          <option value="umkm" {{ 'selected' if form.get('role')=='umkm' }}>🏪 UMKM (Produsen/Vendor)</option>
-          <option value="agen" {{ 'selected' if form.get('role')=='agen' }}>🛒 Agen (Distributor)</option>
-        </select>
-      </label>
-      <label>Nama {{ 'usaha' }} / toko
+      <div class="grid2">
+        <label>Daftar sebagai
+          <select name="role" id="role" required>
+            <option value="umkm" {{ 'selected' if form.get('role')=='umkm' }}>🏪 UMKM (Produsen/Vendor)</option>
+            <option value="agen" {{ 'selected' if form.get('role')=='agen' }}>🛒 Pembeli (Agen / Distributor)</option>
+          </select>
+        </label>
+        <label id="jenis-wrap">Jenis pembeli
+          <select name="jenis">
+            <option value="Distributor" {{ 'selected' if form.get('jenis')=='Distributor' }}>🚚 Distributor (partai besar)</option>
+            <option value="Agen" {{ 'selected' if form.get('jenis')=='Agen' }}>🛒 Agen (skala lebih kecil)</option>
+          </select>
+        </label>
+      </div>
+      <label>Nama usaha / toko
         <input type="text" name="name" required value="{{ form.get('name','') }}"
                placeholder="mis. Keripik Mantul / Toko Berkah Jaya">
       </label>
@@ -51,4 +59,13 @@
     </form>
   </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+const roleSel = document.getElementById('role');
+const jenisWrap = document.getElementById('jenis-wrap');
+function toggleJenis(){ jenisWrap.style.display = roleSel.value === 'agen' ? '' : 'none'; }
+roleSel.addEventListener('change', toggleJenis);
+toggleJenis();
+</script>
 {% endblock %}

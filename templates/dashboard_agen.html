@@ -3,8 +3,8 @@
 {% block content %}
 <div class="dash-head">
   <div>
-    <h1>Dashboard Distributor</h1>
-    <div class="meta">🛒 <b>{{ agen.name }}</b>
+    <h1>Dashboard {{ agen.jenis or 'Distributor' }}</h1>
+    <div class="meta">{{ '🛒' if agen.jenis == 'Agen' else '🚚' }} <b>{{ agen.name }}</b>
       · 📍 {{ agen.city or '—' }}, {{ agen.region or '—' }}
       · <span class="stars">★</span> {{ rating }} ({{ rating_count }} ulasan diterima)
     </div>

@@ -12,6 +12,7 @@ import math
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect as sa_inspect, text
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -107,6 +108,7 @@ class Agen(db.Model):
     contact_phone = db.Column(db.String(60))
     contact_whatsapp = db.Column(db.String(60))
     contact_email = db.Column(db.String(160))
+    jenis = db.Column(db.String(20), default="Distributor")  # 'Agen' atau 'Distributor'
 
 
 class Rating(db.Model):
@@ -147,8 +149,18 @@ def init_db(app):
     """Buat tabel bila belum ada, lalu seed jika kosong (idempoten)."""
     with app.app_context():
         db.create_all()
+        _migrate()
         if Umkm.query.count() == 0:
             seed()
+
+
+def _migrate():
+    """Migrasi ringan: tambah kolom baru pada DB lama tanpa kehilangan data."""
+    cols = [c["name"] for c in sa_inspect(db.engine).get_columns("agen")]
+    if "jenis" not in cols:
+        db.session.execute(text(
+            "ALTER TABLE agen ADD COLUMN jenis VARCHAR(20) DEFAULT 'Distributor'"))
+        db.session.commit()
 
 
 def seed():
@@ -245,15 +257,15 @@ def seed():
         Agen(name="Toko Berkah Jaya", description="Toko grosir sembako & camilan.",
              region="DKI Jakarta", city="Jakarta Pusat", contact_name="Hendra",
              contact_phone="6281299900001", contact_whatsapp="6281299900001",
-             contact_email="berkahjaya@agen.id"),
+             contact_email="berkahjaya@agen.id", jenis="Agen"),
         Agen(name="Grosir Amanah", description="Distributor produk UMKM Jawa Barat.",
              region="Jawa Barat", city="Bandung", contact_name="Maya",
              contact_phone="6281299900002", contact_whatsapp="6281299900002",
-             contact_email="amanah@agen.id"),
+             contact_email="amanah@agen.id", jenis="Distributor"),
         Agen(name="Distributor Sukses Mandiri", description="Jaringan distribusi Jawa Timur.",
              region="Jawa Timur", city="Surabaya", contact_name="Bambang",
              contact_phone="6281299900003", contact_whatsapp="6281299900003",
-             contact_email="sukses@agen.id"),
+             contact_email="sukses@agen.id", jenis="Distributor"),
     ]
     db.session.add_all(agens)
     db.session.flush()

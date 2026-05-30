@@ -3,4 +3,8 @@ Flask-SQLAlchemy==3.1.1
 Flask-Login==0.6.3
 SQLAlchemy==2.0.36
 gunicorn==23.0.0
-psycopg2-binary==2.9.10
+
+# psycopg2-binary HANYA diperlukan jika deploy dengan PostgreSQL (mis. Render).
+# Lokal & PythonAnywhere memakai SQLite, jadi baris ini dibiarkan komentar.
+# Aktifkan (hapus tanda #) hanya saat memakai PostgreSQL:
+# psycopg2-binary==2.9.10

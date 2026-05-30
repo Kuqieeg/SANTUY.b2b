@@ -274,6 +274,7 @@ def daftar():
             db.session.flush()
             user.umkm_id = profile.id
         else:
+            jenis = f.get("jenis") if f.get("jenis") in ("Agen", "Distributor") else "Distributor"
             profile = Agen(name=name,
                            description=(f.get("description") or "").strip(),
                            region=(f.get("region") or "").strip(),
@@ -281,7 +282,7 @@ def daftar():
                            contact_name=(f.get("contact_name") or name).strip(),
                            contact_phone=(f.get("contact_phone") or "").strip(),
                            contact_whatsapp=(f.get("contact_whatsapp") or "").strip(),
-                           contact_email=email)
+                           contact_email=email, jenis=jenis)
             db.session.add(profile)
             db.session.flush()
             user.agen_id = profile.id
@@ -449,7 +450,8 @@ def agen_list():
     for a in agens:
         avg, n = agen_rating(a.id)
         data.append({"a": a, "rating": avg, "count": n})
-    return render_template("agen.html", agens=data)
+    regions = sorted({a.region for a in agens if a.region})
+    return render_template("agen.html", agens=data, regions=regions)
 
 
 @app.route("/agen/<int:aid>/rating", methods=["POST"])
@@ -509,9 +511,11 @@ def agen_profil():
         a.contact_phone = (f.get("contact_phone") or "").strip()
         a.contact_whatsapp = (f.get("contact_whatsapp") or "").strip()
         a.contact_email = (f.get("contact_email") or "").strip()
+        if f.get("jenis") in ("Agen", "Distributor"):
+            a.jenis = f.get("jenis")
         current_user.name = a.name
         db.session.commit()
-        flash("Profil distributor diperbarui.")
+        flash("Profil diperbarui.")
         return redirect(url_for("agen_dashboard"))
     return render_template("profil_agen.html", agen=a)
 

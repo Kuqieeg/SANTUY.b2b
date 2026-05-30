@@ -1,0 +1,27 @@
+{% set a = it.a %}
+<div class="panel agen-card" data-name="{{ a.name|lower }}" data-region="{{ a.region or '' }}">
+  <h3>{{ '🛒' if a.jenis == 'Agen' else '🚚' }} {{ a.name }}
+    <span class="jenis-badge {{ 'j-agen' if a.jenis == 'Agen' else 'j-dist' }}">{{ a.jenis or 'Distributor' }}</span>
+  </h3>
+  <div class="meta">📍 {{ a.city or '—' }}, {{ a.region or '—' }} ·
+    <span class="stars">★</span> {{ it.rating }} ({{ it.count }})</div>
+  <p class="muted small">{{ a.description or '' }}</p>
+  {% if a.contact_name %}<div class="cp-row">👤 {{ a.contact_name }}</div>{% endif %}
+  {% if a.contact_phone %}<div class="cp-row">📞 <a href="tel:{{ a.contact_phone }}">{{ a.contact_phone }}</a></div>{% endif %}
+  {% if a.contact_whatsapp %}
+    <a class="btn wa block" target="_blank"
+       href="https://wa.me/{{ a.contact_whatsapp }}?text=Halo%20{{ a.name|urlencode }}%2C%20saya%20UMKM%20di%20SANTUY%20ingin%20diskusi%20distribusi%20produk.">
+      💬 Hubungi via WhatsApp</a>
+  {% endif %}
+  {% if current_user.is_authenticated and current_user.role == 'umkm' %}
+    <form class="rate-back" method="post" action="{{ url_for('rate_agen', aid=a.id) }}">
+      <div class="star-pick">
+        {% for v in range(1,6) %}
+          <label class="star-radio"><input type="radio" name="stars" value="{{ v }}" required>★</label>
+        {% endfor %}
+      </div>
+      <input type="text" name="comment" placeholder="Ulasan singkat (opsional)">
+      <button class="btn small" type="submit">Beri rating</button>
+    </form>
+  {% endif %}
+</div>
